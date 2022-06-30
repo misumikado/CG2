@@ -596,14 +596,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//ビュー変換行列
 	XMMATRIX matView;
+	float angle = 0.0f;//カメラの反転角
 	XMFLOAT3 eye(0, 0, -100);	//視点座標
 	XMFLOAT3 target(0, 0, 0);	//注視点座標
 	XMFLOAT3 up(0, 1, 0);		//上方向ベクトル
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 	
-	constMapTransform->mat =matView * matProjection;
+	//ワールド変換行列
+	XMMATRIX matWorld;
 
-	float angle = 0.0f;//カメラの反転角
+	XMMATRIX matScale;//スケーリング行列
+	matScale = XMMatrixScaling(1.0f, 0.5f, 1.0f);
+
+	XMMATRIX matRot;//回転行列
+	matRot = XMMatrixIdentity();
+	matRot = XMMatrixRotationZ(XMConvertToRadians(0.0f));//Z軸周りに0度回転
+	matRot = XMMatrixRotationX(XMConvertToRadians(15.0f));//X軸周りに15度回転
+	matRot = XMMatrixRotationY(XMConvertToRadians(30.0f));//Y軸周りに30度回転
+	
+	XMMATRIX matTrans;//平行移動行列
+	matTrans = XMMatrixTranslation(-50.0f, 0.0f, 0.0f); //(-50.5f,0.0f,0.0f)平行移動
+	matWorld *= matTrans;//ワールド行列に平行移動を反映
+
+	constMapTransform->mat =matWorld* matView * matProjection;
+
+	//スケーリング倍率
+	XMFLOAT3 scale = { 1.0f,1.0f,1.0f };
+
+	//回転角
+	XMFLOAT3 rotation{ 0.0f,0.0f,0.0f };
+
+	//座標
+	XMFLOAT3 position = { 0.0f,0.0f,0.0f };
 
 	/*constMapTransform->mat.r[0].m128_f32[0] = 2.0f/window_width;
 	constMapTransform->mat.r[1].m128_f32[1] = -2.0f / window_height;
@@ -783,9 +807,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			eye.z = -100 * cosf(angle);
 			
 			matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
-
-			constMapTransform->mat = matView * matProjection;
 		}
+
+		//いずれかのキーを押していたら
+		if (keys[DIK_UP] || keys[DIK_DOWN] || keys[DIK_RIGHT] || keys[DIK_LEFT])
+		{
+			//座標を移動する処理(Z座標)
+			if (keys[DIK_UP]) { position.z += 1.0f; }
+			else if (keys[DIK_DOWN]) { position.z -= 1.0f; }
+			if (keys[DIK_RIGHT]) { position.x += 1.0f; }
+			else if (keys[DIK_LEFT]) { position.x -= 1.0f; }
+		}
+		
+	/*	matWorld *= matScale;
+		matWorld = XMMatrixIdentity();
+		matWorld *= matRot;*/
+
+		matScale = XMMatrixScaling(scale.x, scale.y, scale.z);
+
+		matRot = XMMatrixIdentity();
+		matRot *= XMMatrixRotationZ(rotation.z);
+		matRot *= XMMatrixRotationX(rotation.x);
+		matRot *= XMMatrixRotationY(rotation.y);
+
+		XMMATRIX matTrans;//平行移動行列
+		matTrans = XMMatrixTranslation(position.x, position.y, position.z);
+		
+		matWorld = XMMatrixIdentity();
+		matWorld *= matScale;//ワールド行列にスケーリングを反映
+		matWorld *= matRot;//ワールド行列に回転を反映		
+		matWorld *= matTrans;//ワールド行列に平行移動を反映
+
+		constMapTransform->mat = matWorld * matView * matProjection;
 
 		//全頂点に対して
 		for (int i = 0; i < _countof(vertices); i++) {
