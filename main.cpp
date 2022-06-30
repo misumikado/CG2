@@ -245,10 +245,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		XMFLOAT2 uv;
 	};
 	Vertex vertices[] = {
-		{{0.0f,100.0f,0.0f},{0.0f,1.0f}},
-		{{0.0f,0.0f,0.0f},{0.0f,0.0f}},
-		{{100.0f,100.0f,0.0f},{1.0f,1.0f}},
-		{{100.0f,0.0f,0.0f},{1.0f,0.0f}}
+		{{-50.0f,-50.0f,50.0f},{0.0f,1.0f}},
+		{{-50.0f,50.0f,50.0f},{0.0f,0.0f}},
+		{{50.0f,-50.0f,50.0f},{1.0f,1.0f}},
+		{{50.0f,50.0f,50.0f},{1.0f,0.0f}}
 	};
 	//頂点データ
 	//XMFLOAT3 vertices[] = {
@@ -586,10 +586,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//単位行列を代入
 	constMapTransform->mat = XMMatrixIdentity();
 
-	constMapTransform->mat.r[0].m128_f32[0] = 2.0f/window_width;
+	//透視投影行列の計算
+	XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
+		XMConvertToRadians(45.0),			//上下画角45度
+		(float)window_width/window_height,	//アスペクト比(画面横幅/画面縦幅)
+		0.1f,1000.0f						//前幅、奥幅
+	);
+
+	constMapTransform->mat = matProjection;
+
+	/*constMapTransform->mat.r[0].m128_f32[0] = 2.0f/window_width;
 	constMapTransform->mat.r[1].m128_f32[1] = -2.0f / window_height;
 	constMapTransform->mat.r[3].m128_f32[0] = -1.0f;
-	constMapTransform->mat.r[3].m128_f32[1] = 1.0f;
+	constMapTransform->mat.r[3].m128_f32[1] = 1.0f;*/
 
 	//値を書き込むと自動的に転送される
 	constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5f);
