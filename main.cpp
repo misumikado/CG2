@@ -250,6 +250,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{{50.0f,-50.0f,50.0f},{1.0f,1.0f}},
 		{{50.0f,50.0f,50.0f},{1.0f,0.0f}}
 	};
+
 	//頂点データ
 	//XMFLOAT3 vertices[] = {
 	//	{-0.5f,-0.5f,0.0f},//左下
@@ -593,7 +594,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		0.1f,1000.0f						//前幅、奥幅
 	);
 
-	constMapTransform->mat = matProjection;
+	//ビュー変換行列
+	XMMATRIX matView;
+	XMFLOAT3 eye(0, 0, -100);	//視点座標
+	XMFLOAT3 target(0, 0, 0);	//注視点座標
+	XMFLOAT3 up(0, 1, 0);		//上方向ベクトル
+	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+	
+	constMapTransform->mat =matView * matProjection;
+
+	float angle = 0.0f;//カメラの反転角
 
 	/*constMapTransform->mat.r[0].m128_f32[0] = 2.0f/window_width;
 	constMapTransform->mat.r[1].m128_f32[1] = -2.0f / window_height;
@@ -662,8 +672,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	textureResourceDesc.MipLevels = (UINT16)metadata.mipLevels;
 	textureResourceDesc.SampleDesc.Count = 1;
 
-
-
 	//テクスチャバッファの生成
 	ID3D12Resource* texBuff = nullptr;
 	result = device->CreateCommittedResource(
@@ -700,7 +708,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = resDesc.MipLevels;
-
 
 	//ハンドルのさす位置にシェーダーリソースビュー作成
 	device->CreateShaderResourceView(texBuff, &srvDesc, srvHandle);
@@ -745,7 +752,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ibView.Format = DXGI_FORMAT_R16_UINT;
 	ibView.SizeInBytes = sizeIB;
 
-
 	//ゲームループ
 	while (true) {
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -766,74 +772,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//全キーの入力状態を取得する
 		BYTE keys[256] = {};
 		keyboard->GetDeviceState(sizeof(keys), keys);
+		
+		if (keys[DIK_D] || keys[DIK_A])
+		{
+			if (keys[DIK_D]) { angle += XMConvertToRadians(1.0f); }
+			else if (keys[DIK_A]){angle -= XMConvertToRadians(1.0f);}
 
-		//transformX = 0.0f;
-		//transformY = 0.0f;
-		//rotation = 0.0f;
-		//scale = 1.0f;
+			//angleラジアンだけY軸周りに回転。半径は-100
+			eye.x = -100 * sinf(angle);
+			eye.z = -100 * cosf(angle);
+			
+			matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 
-		////数字の0キーが押されたら
-		////平行移動
-		//if (keys[DIK_W])
-		//{
-		//	transformY += 0.1f;
-		//}
-
-		//if (keys[DIK_S])
-		//{
-		//	transformY -= 0.1f;
-		//}
-
-		//if (keys[DIK_A])
-		//{
-		//	transformX -= 0.1f;
-		//}
-
-		//if (keys[DIK_D])
-		//{
-		//	transformX += 0.1f;
-		//}
-
-		////拡大縮小
-		//if (keys[DIK_Z])
-		//{
-		//	scale += 0.1f;
-		//}
-
-		//if (keys[DIK_C])
-		//{
-		//	scale -= 0.1f;
-		//}
-
-		////回転
-		//if (keys[DIK_Q])
-		//{
-		//	rotation += PI / 32;
-		//}
-		//if (keys[DIK_E])
-		//{
-		//	rotation -= PI / 32;
-		//}
-		////アフィン行列の生成
-		//affin[0][0] = scale * cos(rotation);
-		//affin[0][1] = scale * -sin(rotation);
-		//affin[0][2] = transformX;
-
-		//affin[1][0] = scale * sin(rotation);
-		//affin[1][1] = scale * cos(rotation);
-		//affin[1][2] = transformY;
-
-		//affin[2][0] = 0.0f;
-		//affin[2][1] = 0.0f;
-		//affin[2][2] = 1.0f;
-
-		////アフィン変換
-		//for (int i = 0; i < _countof(vertices); i++)
-		//{
-		//	vertices[i].pos.x = vertices[i].pos.x * affin[0][0] + vertices[i].pos.y * affin[0][1] + 1.0f * affin[0][2];
-		//	vertices[i].pos.y = vertices[i].pos.x * affin[1][0] + vertices[i].pos.y * affin[1][1] + 1.0f * affin[1][2];
-		//	vertices[i].pos.z = vertices[i].pos.x * affin[2][0] + vertices[i].pos.y * affin[2][1] + 1.0f * affin[2][2];
-		//}
+			constMapTransform->mat = matView * matProjection;
+		}
 
 		//全頂点に対して
 		for (int i = 0; i < _countof(vertices); i++) {
