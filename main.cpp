@@ -175,11 +175,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 	swapChainDesc.Width = 1280;
 	swapChainDesc.Height = 720;
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;         //色情報の書式
-	swapChainDesc.SampleDesc.Count = 1;                        //マルチサンプルしない
-	swapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER; //バックバッファ用
-	swapChainDesc.BufferCount = 2;                             //バッファ数を2津に設定
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;  //フリップ後は破棄
+	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;          //色情報の書式
+	swapChainDesc.SampleDesc.Count = 1;                         //マルチサンプルしない
+	swapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER;			//バックバッファ用
+	swapChainDesc.BufferCount = 2;                              //バッファ数を2津に設定
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;   //フリップ後は破棄
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	//スワップチェーンの生成
@@ -243,8 +243,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	result = keyboard->SetCooperativeLevel(
 		hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(result));
-
-
 	//DirectX 初期化処理　ここまで
 
 	//描画初期化処理  ここから
@@ -327,28 +325,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//頂点データの全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
-
-	//四角形のイメージデータ
-	////横方向ピクセル数
-	//const size_t textureWidth = 256;
-
-	////縦方向ピクセル数
-	//const size_t textureHeight = 256;
-
-	////配列の要素数
-	//const size_t imageDataCount = textureWidth * textureHeight;
-
-	////画像イメージデータ配列
-	//XMFLOAT4* imageData = new XMFLOAT4[imageDataCount];
-
-	////全ピクセルの色を初期化
-	//for (size_t i = 0; i < imageDataCount; i++)
-	//{
-	//	imageData[i].x = 0.0f; // R
-	//	imageData[i].y = 1.0f; // G
-	//	imageData[i].z = 0.0f; // B
-	//	imageData[i].w = 1.0f; // A
-	//}
 
 	//画像読み込み
 	TexMetadata metadata{};
@@ -502,8 +478,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		XMMATRIX mat; //3D変換行列
 	};
 
-	////マテリアル////
-
 	//ヒープ設定
 	D3D12_HEAP_PROPERTIES cbHeapProp{};
 	cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;  //GPUへの転送用
@@ -621,34 +595,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	D3D12_ROOT_PARAMETER rootParams[3] = {};
 
 	//定数バッファ0番
-	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   //種類
-	rootParams[0].Descriptor.ShaderRegister = 0;                   //デスクリプタレンジ
-	rootParams[0].Descriptor.RegisterSpace = 0;                    //デフォルト値
-	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  //全てのシェーダから見える
+	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   
+	rootParams[0].Descriptor.ShaderRegister = 0;                   
+	rootParams[0].Descriptor.RegisterSpace = 0;                    
+	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  
 
 	//テクスチャレジスタ0番
-	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;  //種類
-	rootParams[1].DescriptorTable.pDescriptorRanges = &descriptorRange;        //デスクリプタレンジ
-	rootParams[1].DescriptorTable.NumDescriptorRanges = 1;                     //デフォルト値
-	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;              //全てのシェーダから見える
+	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;  
+	rootParams[1].DescriptorTable.pDescriptorRanges = &descriptorRange;        
+	rootParams[1].DescriptorTable.NumDescriptorRanges = 1;                     
+	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;              
 
 	//定数バッファ1番
-	rootParams[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   //種類
-	rootParams[2].Descriptor.ShaderRegister = 1;                   //デスクリプタレンジ
-	rootParams[2].Descriptor.RegisterSpace = 0;                    //デフォルト値
-	rootParams[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  //全てのシェーダから見える
+	rootParams[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;  
+	rootParams[2].Descriptor.ShaderRegister = 1;                  
+	rootParams[2].Descriptor.RegisterSpace = 0;                   
+	rootParams[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; 
 
 	//テクスチャサンプラーの設定
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                 //横繰り返し(タイリング)
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                 //縦繰り返し(タイリング)
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                 //奥行繰り返し(タイリング)
-	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;  //ボーダーの時は黒
-	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;                   //全てリニア補完
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;                                 //ミップマップ最大値
-	samplerDesc.MinLOD = 0.0f;                                              //ミップマップ最小値
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                
+	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK; 
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;                  
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;                                
+	samplerDesc.MinLOD = 0.0f;                                             
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;           //ピクセルシェーダ空のみ使用可能
+	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;          
 
 	//頂点バッファの作成
 	ID3D12Resource* vertBuff = nullptr;
