@@ -175,11 +175,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 	swapChainDesc.Width = 1280;
 	swapChainDesc.Height = 720;
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;          //色情報の書式
-	swapChainDesc.SampleDesc.Count = 1;                         //マルチサンプルしない
-	swapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER;			//バックバッファ用
-	swapChainDesc.BufferCount = 2;                              //バッファ数を2津に設定
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;   //フリップ後は破棄
+	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;         //色情報の書式
+	swapChainDesc.SampleDesc.Count = 1;                        //マルチサンプルしない
+	swapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER; //バックバッファ用
+	swapChainDesc.BufferCount = 2;                             //バッファ数を2津に設定
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;  //フリップ後は破棄
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	//スワップチェーンの生成
@@ -243,6 +243,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	result = keyboard->SetCooperativeLevel(
 		hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(result));
+
+
 	//DirectX 初期化処理　ここまで
 
 	//描画初期化処理  ここから
@@ -252,6 +254,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	{
 		XMFLOAT3 pos; //xyz座標
 
+		XMFLOAT3 normal; //法線ベクトル
+
 		XMFLOAT2 uv;  //uv座標
 	};
 
@@ -259,40 +263,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Vertex vertices[] = {
 
 		//前
-		{{-5.0f,-5.0f,-5.0f},{0.0f,1.0f}},//左下
-		{{-5.0f, 5.0f,-5.0f},{0.0f,0.0f}},//左上
-		{{ 5.0f,-5.0f,-5.0f},{1.0f,1.0f}},//右下
-		{{ 5.0f, 5.0f,-5.0f},{1.0f,0.0f}},//右上
+		{{-5.0f,-5.0f,-5.0f},{},{0.0f,1.0f}},//左下
+		{{-5.0f, 5.0f,-5.0f},{},{0.0f,0.0f}},//左上
+		{{ 5.0f,-5.0f,-5.0f},{},{1.0f,1.0f}},//右下
+		{{ 5.0f, 5.0f,-5.0f},{},{1.0f,0.0f}},//右上
 
 		//後
-		{{-5.0f,-5.0f, 5.0f},{0.0f,1.0f}},//左下
-		{{-5.0f, 5.0f, 5.0f},{0.0f,0.0f}},//左上
-		{{ 5.0f,-5.0f, 5.0f},{1.0f,1.0f}},//右下
-		{{ 5.0f, 5.0f, 5.0f},{1.0f,0.0f}},//右上
+		{{-5.0f,-5.0f, 5.0f},{},{0.0f,1.0f}},//左下
+		{{-5.0f, 5.0f, 5.0f},{},{0.0f,0.0f}},//左上
+		{{ 5.0f,-5.0f, 5.0f},{},{1.0f,1.0f}},//右下
+		{{ 5.0f, 5.0f, 5.0f},{},{1.0f,0.0f}},//右上
 
 		//左
-		{{-5.0f,-5.0f,-5.0f},{0.0f,1.0f}},//左下
-		{{-5.0f,-5.0f, 5.0f},{0.0f,0.0f}},//左上
-		{{-5.0f, 5.0f,-5.0f},{1.0f,1.0f}},//右下
-		{{-5.0f, 5.0f, 5.0f},{1.0f,0.0f}},//右上
+		{{-5.0f,-5.0f,-5.0f},{},{0.0f,1.0f}},//左下
+		{{-5.0f,-5.0f, 5.0f},{},{0.0f,0.0f}},//左上
+		{{-5.0f, 5.0f,-5.0f},{},{1.0f,1.0f}},//右下
+		{{-5.0f, 5.0f, 5.0f},{}, {1.0f,0.0f}},//右上
 
 		//右
-		{{ 5.0f,-5.0f,-5.0f},{0.0f,1.0f}},//左下
-		{{ 5.0f,-5.0f, 5.0f},{0.0f,0.0f}},//左上
-		{{ 5.0f, 5.0f,-5.0f},{1.0f,1.0f}},//右下
-		{{ 5.0f, 5.0f, 5.0f},{1.0f,0.0f}},//右上
+		{{ 5.0f,-5.0f,-5.0f},{},{0.0f,1.0f}},//左下
+		{{ 5.0f,-5.0f, 5.0f},{},{0.0f,0.0f}},//左上
+		{{ 5.0f, 5.0f,-5.0f},{},{1.0f,1.0f}},//右下
+		{{ 5.0f, 5.0f, 5.0f},{},{1.0f,0.0f}},//右上
 
 		//上
-		{{-5.0f, 5.0f, 5.0f},{0.0f,0.0f}},//左下
-		{{-5.0f, 5.0f,-5.0f},{0.0f,0.0f}},//左上
-		{{ 5.0f, 5.0f, 5.0f},{1.0f,0.0f}},//右下
-		{{ 5.0f, 5.0f,-5.0f},{1.0f,0.0f}},//右上
+		{{-5.0f, 5.0f, 5.0f},{},{0.0f,0.0f}},//左下
+		{{-5.0f, 5.0f,-5.0f},{},{0.0f,0.0f}},//左上
+		{{ 5.0f, 5.0f, 5.0f},{},{1.0f,0.0f}},//右下
+		{{ 5.0f, 5.0f,-5.0f},{},{1.0f,0.0f}},//右上
 
 		//下
-		{{-5.0f,-5.0f, 5.0f},{0.0f,0.0f}},//左下
-		{{-5.0f,-5.0f,-5.0f},{0.0f,0.0f}},//左上
-		{{ 5.0f,-5.0f, 5.0f},{1.0f,0.0f}},//右下
-		{{ 5.0f,-5.0f,-5.0f},{1.0f,0.0f}},//右上
+		{{-5.0f,-5.0f, 5.0f},{},{0.0f,0.0f}},//左下
+		{{-5.0f,-5.0f,-5.0f},{},{0.0f,0.0f}},//左上
+		{{ 5.0f,-5.0f, 5.0f},{},{1.0f,0.0f}},//右下
+		{{ 5.0f,-5.0f,-5.0f},{},{1.0f,0.0f}},//右上
 	};
 
 	//インデックスデータ
@@ -300,31 +304,53 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	{
 		//前
 		 0,1,2,  //三角形1つ目
-		 1,2,3,  //三角形2つ目
+		 2,1,3,  //三角形2つ目
 
 		 //後ろ
-		 4,5,6,  //三角形3つ目
-		 5,6,7,	//三角形4つ目
+		 6,5,4,  //三角形3つ目
+		 7,5,6,	//三角形4つ目
 
 		 //左
-		 8,9,10,  //三角形5つ目
-		 9,10,11,  //三角形6つ目 
+		 9,10,8,  //三角形5つ目
+		 11,10,9,  //三角形6つ目 
 
 		 //右
-		 12,13,14,  //三角形7つ目
+		 12,14,13,  //三角形7つ目
 		 13,14,15,  //三角形8つ目
 
 		 //上
-		 16,17,18,  //三角形9つ目
+		 16,18,17,  //三角形9つ目
 		 17,18,19,  //三角形10個目
 
 		 //下
-		 20,21,22,  //三角形11個目
-		 21,22,23,  //三角形12個目
+		 21,22,20,  //三角形11個目
+		 23,22,21,  //三角形12個目
 	};
 
 	//頂点データの全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
+
+	//四角形のイメージデータ
+	////横方向ピクセル数
+	//const size_t textureWidth = 256;
+
+	////縦方向ピクセル数
+	//const size_t textureHeight = 256;
+
+	////配列の要素数
+	//const size_t imageDataCount = textureWidth * textureHeight;
+
+	////画像イメージデータ配列
+	//XMFLOAT4* imageData = new XMFLOAT4[imageDataCount];
+
+	////全ピクセルの色を初期化
+	//for (size_t i = 0; i < imageDataCount; i++)
+	//{
+	//	imageData[i].x = 0.0f; // R
+	//	imageData[i].y = 1.0f; // G
+	//	imageData[i].z = 0.0f; // B
+	//	imageData[i].w = 1.0f; // A
+	//}
 
 	//画像読み込み
 	TexMetadata metadata{};
@@ -478,6 +504,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		XMMATRIX mat; //3D変換行列
 	};
 
+	////マテリアル////
+
 	//ヒープ設定
 	D3D12_HEAP_PROPERTIES cbHeapProp{};
 	cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;  //GPUへの転送用
@@ -595,34 +623,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	D3D12_ROOT_PARAMETER rootParams[3] = {};
 
 	//定数バッファ0番
-	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   
-	rootParams[0].Descriptor.ShaderRegister = 0;                   
-	rootParams[0].Descriptor.RegisterSpace = 0;                    
-	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  
+	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   //種類
+	rootParams[0].Descriptor.ShaderRegister = 0;                   //デスクリプタレンジ
+	rootParams[0].Descriptor.RegisterSpace = 0;                    //デフォルト値
+	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  //全てのシェーダから見える
 
 	//テクスチャレジスタ0番
-	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;  
-	rootParams[1].DescriptorTable.pDescriptorRanges = &descriptorRange;        
-	rootParams[1].DescriptorTable.NumDescriptorRanges = 1;                     
-	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;              
+	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;  //種類
+	rootParams[1].DescriptorTable.pDescriptorRanges = &descriptorRange;        //デスクリプタレンジ
+	rootParams[1].DescriptorTable.NumDescriptorRanges = 1;                     //デフォルト値
+	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;              //全てのシェーダから見える
 
 	//定数バッファ1番
-	rootParams[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;  
-	rootParams[2].Descriptor.ShaderRegister = 1;                  
-	rootParams[2].Descriptor.RegisterSpace = 0;                   
-	rootParams[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; 
+	rootParams[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   //種類
+	rootParams[2].Descriptor.ShaderRegister = 1;                   //デスクリプタレンジ
+	rootParams[2].Descriptor.RegisterSpace = 0;                    //デフォルト値
+	rootParams[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  //全てのシェーダから見える
 
 	//テクスチャサンプラーの設定
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                
-	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK; 
-	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;                  
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;                                
-	samplerDesc.MinLOD = 0.0f;                                             
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                 //横繰り返し(タイリング)
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                 //縦繰り返し(タイリング)
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;                 //奥行繰り返し(タイリング)
+	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;  //ボーダーの時は黒
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;                   //全てリニア補完
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;                                 //ミップマップ最大値
+	samplerDesc.MinLOD = 0.0f;                                              //ミップマップ最小値
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;          
+	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;           //ピクセルシェーダ空のみ使用可能
 
 	//頂点バッファの作成
 	ID3D12Resource* vertBuff = nullptr;
@@ -770,6 +798,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		   D3D12_APPEND_ALIGNED_ELEMENT,
 		   D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0
 		},
+
+		{
+			//法線ベクトル
+			"NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0
+		},
+
 		{
 			//uv座標(1行で書いたほうが見やすい)
 		   "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,
@@ -836,7 +872,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	pipelineDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 
 	//ラスタライザの設定
-	pipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;   //カリングしない
+	pipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;   //背面をカリング
 	pipelineDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;  //ポリゴン内塗りつぶし
 	pipelineDesc.RasterizerState.DepthClipEnable = true;            //深度クリッピングを有効に
 
