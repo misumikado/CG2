@@ -66,3 +66,4 @@ public:
 	//インデックスデータ
 	uint16_t indices[3];
 };
+
